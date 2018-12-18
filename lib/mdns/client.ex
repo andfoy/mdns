@@ -125,7 +125,9 @@ defmodule Mdns.Client do
     %Device{device | :domain => to_string(record.domain)}
   end
 
-  def handle_device({:dns_rr, _d, :txt, _id, _, _, data, _, _, _}, device) do
+  # def handle_device({:dns_rr, _d, :txt, _id, _, _, data, _, _, _}, device) do
+  def handle_device(%DNS.Resource{:type => :txt} = record, device) do
+    data = record.data
     %Device{
       device
       | :payload =>
@@ -156,7 +158,6 @@ defmodule Mdns.Client do
       |> Enum.find(%Device{:ip => ip}, fn device ->
         device.ip == ip
       end)
-
     Enum.reduce(record.anlist ++ record.arlist, orig_device, fn r, acc ->
       handle_device(r, acc)
     end)
